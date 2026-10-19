@@ -1,118 +1,130 @@
-# TaskManagementApi
+# TaskManagementApi-EFCore
 
-A simple Task Management REST API built with ASP.NET Core and .NET 10.
+A hands-on tutorial project for **AA Programming Video #04**, demonstrating how to integrate ASP.NET Core Web API with Entity Framework Core and SQL Server to persist data.
 
-This project is created as part of the **AA Programming** YouTube tutorial series.
+This project builds on the REST API CRUD example from Video #01 and extends it to store task data in a SQL Server database.
 
-## 📺 YouTube Tutorials
-
-### Video #01 — ASP.NET Core REST API: Dari Nol sampai CRUD
-
-In this tutorial, we build a simple REST API for managing tasks using ASP.NET Core.
-
-Topics covered:
+## Features
 
 - ASP.NET Core Web API
-- Controllers
-- REST API
-- CRUD operations
-- OpenAPI
+- Entity Framework Core integration
+- SQL Server database
+- Database migrations
+- CRUD operations (Create, Read, Update, Delete)
+- API testing with Postman
+- Persistent data storage
+
+## Tech Stack
+
+- C#
+- ASP.NET Core Web API
+- Entity Framework Core
+- Microsoft SQL Server
 - Postman
 
-### Short #01 — Dependency Injection di ASP.NET Core
+## Prerequisites
 
-In this short, we refactor the API by moving business logic from the Controller into a Service and applying Dependency Injection.
+Before running this project, make sure you have:
 
-Topics covered:
+- A compatible .NET SDK
+- Microsoft SQL Server
+- EF Core CLI (`dotnet-ef`)
+- Postman (for API testing)
 
-- Service Pattern
-- Interface
-- Dependency Injection
-- `ITaskService`
-- `TaskService`
-- `AddScoped`
+## Getting Started
 
-## 🛠️ Technologies
-
-- .NET 10
-- ASP.NET Core Web API
-- C#
-- OpenAPI
-
-## 📁 Project Structure
-
-```text
-TaskManagementApi
-├── Controllers
-│   └── TasksController.cs
-├── Models
-│   └── TaskItem.cs
-├── Services
-│   ├── ITaskService.cs
-│   └── TaskService.cs
-├── Properties
-├── Program.cs
-└── TaskManagementApi.csproj
-```
-
-## 🚀 API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/tasks` | Get all tasks |
-| GET | `/api/tasks/{id}` | Get task by ID |
-| POST | `/api/tasks` | Create a task |
-| PUT | `/api/tasks/{id}` | Update a task |
-| DELETE | `/api/tasks/{id}` | Delete a task |
-
-## ▶️ Running the Project
-
-Clone the repository:
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Agunahwan/TaskManagementApi.git
+git clone https://github.com/Agunahwan/TaskManagementApi-EFCore.git
+cd TaskManagementApi-EFCore
 ```
 
-Go to the project directory:
+### 2. Configure the Database Connection
+
+Configure the SQL Server connection in your local application settings.
+
+Do not commit passwords, credentials, or other secrets to this repository.
+
+### 3. Restore Dependencies
 
 ```bash
-cd TaskManagementApi
+dotnet restore
 ```
 
-Run the application:
+### 4. Build the Project
+
+```bash
+dotnet build
+```
+
+### 5. Apply Database Migrations
+
+After configuring the database connection, apply the EF Core migrations:
+
+```bash
+dotnet ef database update
+```
+
+Make sure the EF Core CLI is installed and compatible with the project's EF Core version.
+
+### 6. Run the API
 
 ```bash
 dotnet run
 ```
 
-The API will be available at the URL shown in the terminal.
+Use the application URL and endpoints displayed in the terminal to test the API.
 
-## 📌 Source Code Versions
+## Testing with Postman
 
-This repository contains source code used throughout the AA Programming tutorial series.
+Use Postman to test the CRUD endpoints available in the project:
 
-- `v1.0.0` — Video #01: REST API CRUD
-- `v1.1.0` — Short #01: Dependency Injection
+- **Create:** Create a new task.
+- **Read:** Retrieve tasks from the database.
+- **Update:** Update an existing task.
+- **Delete:** Delete a task.
 
-Check out the appropriate version if you want to follow a specific tutorial.
+### Verify Data Persistence
 
-## 📺 AA Programming
+To verify that data is stored persistently:
 
-YouTube:
-https://www.youtube.com/@aaprogrammingid
+1. Create a task using Postman.
+2. Confirm that the task is stored in SQL Server.
+3. Stop and restart the API.
+4. Retrieve the task again using Postman.
+5. Verify that the task still exists.
 
-Programming tutorials about:
+Data should remain available after the API restarts, provided it has not been deleted from the database.
 
-- .NET
-- ASP.NET Core
-- Flutter
-- React Native
-- PHP
-- REST API
-- Database
-- Debugging
-- Developer Experience
+## What You'll Learn
 
----
+By following this project, you'll learn how to:
 
-Made for **AA Programming** 🎯
+- Connect an ASP.NET Core Web API to SQL Server.
+- Use Entity Framework Core for database operations.
+- Configure a `DbContext`.
+- Apply database migrations.
+- Implement CRUD operations using persistent storage.
+- Test API endpoints with Postman.
+
+## Related Repository
+
+**Video #01 — ASP.NET Core REST API CRUD**
+
+https://github.com/Agunahwan/TaskManagementApi
+
+## Security Notes
+
+- Never commit database passwords or credentials.
+- Use local configuration or .NET User Secrets for development when appropriate.
+- Avoid exposing connection strings containing credentials in screenshots or recordings.
+- Review database migrations before applying them to important environments.
+
+## About AA Programming
+
+**AA Programming** shares practical programming tutorials covering application development, REST APIs, databases, and debugging.
+
+Follow the channel for more hands-on tutorials, including JWT Authentication in Video #05.
+
+If this repository helps you, feel free to give it a ⭐.
