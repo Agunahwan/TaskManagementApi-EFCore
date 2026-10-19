@@ -1,75 +1,77 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using TaskManagementApi.Models;
 using TaskManagementApi.Services;
 
-namespace TaskManagementApi.Controllers
+namespace TaskManagementApi.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class TasksController(ITaskService taskService) : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class TasksController : ControllerBase
+    [HttpGet]
+    public async Task<ActionResult<IReadOnlyList<TaskItem>>> GetTasks(
+        CancellationToken cancellationToken)
     {
-        private readonly ITaskService _taskService;
+        var tasks = await taskService.GetTasksAsync(cancellationToken);
+        return Ok(tasks);
+    }
 
-        public TasksController(ITaskService taskService)
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<TaskItem>> GetTask(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var task = await taskService.GetTaskAsync(id, cancellationToken);
+
+        if (task is null)
         {
-            _taskService = taskService;
+            return NotFound();
         }
 
-        [HttpGet]
-        public ActionResult<IEnumerable<TaskItem>> GetTasks()
+        return Ok(task);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<TaskItem>> CreateTask(
+        [FromBody] TaskItem task,
+        CancellationToken cancellationToken)
+    {
+        var createdTask = await taskService.CreateTaskAsync(task, cancellationToken);
+
+        return CreatedAtAction(
+            nameof(GetTask),
+            new { id = createdTask.Id },
+            createdTask);
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> UpdateTask(
+        int id,
+        [FromBody] TaskItem updatedTask,
+        CancellationToken cancellationToken)
+    {
+        var updated = await taskService.UpdateTaskAsync(id, updatedTask, cancellationToken);
+
+        if (!updated)
         {
-            return Ok(_taskService.GetTasks());
+            return NotFound();
         }
 
-        [HttpGet("{id}")]
-        public ActionResult<TaskItem> GetTask(int id)
+        return NoContent();
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteTask(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var deleted = await taskService.DeleteTaskAsync(id, cancellationToken);
+
+        if (!deleted)
         {
-            var task = _taskService.GetTask(id);
-
-            if (task == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(task);
+            return NotFound();
         }
 
-        [HttpPost]
-        public ActionResult<TaskItem> CreateTask(TaskItem task)
-        {
-            var createdTask = _taskService.CreateTask(task);
-
-            return CreatedAtAction(
-                nameof(GetTask),
-                new { id = createdTask.Id },
-                createdTask
-            );
-        }
-
-        [HttpPut("{id}")]
-        public IActionResult UpdateTask(int id, TaskItem updatedTask)
-        {
-            var updated = _taskService.UpdateTask(id, updatedTask);
-
-            if (!updated)
-            {
-                return NotFound();
-            }
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult DeleteTask(int id)
-        {
-            var deleted = _taskService.DeleteTask(id);
-
-            if (!deleted)
-            {
-                return NotFound();
-            }
-
-            return NoContent();
-        }
+        return NoContent();
     }
 }

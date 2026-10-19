@@ -1,11 +1,14 @@
-﻿namespace TaskManagementApi.Models
+using System.ComponentModel.DataAnnotations;
+
+namespace TaskManagementApi.Models;
+
+public class TaskItem
 {
-    public class TaskItem
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        public string Title { get; set; } = string.Empty;
+    [Required]
+    [StringLength(200)]
+    public string Title { get; set; } = string.Empty;
 
-        public bool IsCompleted { get; set; }
-    }
+    public bool IsCompleted { get; set; }
 }

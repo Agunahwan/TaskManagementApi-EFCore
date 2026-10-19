@@ -1,112 +1,134 @@
 # TaskManagementApi-EFCore
 
-A hands-on tutorial project for **AA Programming Video #04**, demonstrating how to integrate ASP.NET Core Web API with Entity Framework Core and SQL Server to persist data.
+A hands-on tutorial project for **AA Programming Video #04**, demonstrating how to build an ASP.NET Core Web API with Entity Framework Core and SQL Server.
 
-This project builds on the REST API CRUD example from Video #01 and extends it to store task data in a SQL Server database.
+This project continues the Task Management API from Video #01 and replaces in-memory storage with persistent database storage.
 
 ## Features
 
-- ASP.NET Core Web API
-- Entity Framework Core integration
-- SQL Server database
+- ASP.NET Core Web API using controllers
+- Entity Framework Core with SQL Server
 - Database migrations
-- CRUD operations (Create, Read, Update, Delete)
-- API testing with Postman
-- Persistent data storage
+- Asynchronous CRUD operations
+- Postman and `.http` request examples
+- Data persists when the API restarts
 
-## Tech Stack
+## Technology Stack
 
+- .NET 10
 - C#
-- ASP.NET Core Web API
-- Entity Framework Core
+- Entity Framework Core 10
 - Microsoft SQL Server
 - Postman
 
 ## Prerequisites
 
-Before running this project, make sure you have:
+- .NET 10 SDK
+- A running SQL Server instance
+- Postman (optional, for API testing)
+- EF Core CLI
 
-- A compatible .NET SDK
-- Microsoft SQL Server
-- EF Core CLI (`dotnet-ef`)
-- Postman (for API testing)
+Install the EF Core CLI if needed:
 
-## Getting Started
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/Agunahwan/TaskManagementApi-EFCore.git
-cd TaskManagementApi-EFCore
+```powershell
+dotnet tool install --global dotnet-ef --version 10.0.12
 ```
 
-### 2. Configure the Database Connection
+If it is already installed, update it with:
 
-Configure the SQL Server connection in your local application settings.
+```powershell
+dotnet tool update --global dotnet-ef --version 10.0.12
+```
 
-Do not commit passwords, credentials, or other secrets to this repository.
+## 1. Configure the SQL Server connection
 
-### 3. Restore Dependencies
+The sample connection string in `appsettings.json` uses Windows Integrated Authentication and assumes SQL Server is available at `localhost`:
 
-```bash
+```text
+Server=localhost;Database=TaskManagementDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true
+```
+
+Adjust `Server` to match your SQL Server instance. For SQL Server Express, for example, the server might be `localhost\\SQLEXPRESS`.
+
+If you use SQL Server authentication, use a local secret/configuration override instead of committing a real username or password to Git. For example, configure the `ConnectionStrings:DefaultConnection` setting through .NET User Secrets or an environment variable.
+
+PowerShell environment-variable example (replace the placeholders locally; do not share real credentials):
+
+```powershell
+$env:ConnectionStrings__DefaultConnection = "Server=localhost;Database=TaskManagementDb;User Id=<USERNAME>;Password=<PASSWORD>;TrustServerCertificate=True;Encrypt=True"
+```
+
+## 2. Restore and build
+
+From the directory containing `TaskManagementApi.csproj`:
+
+```powershell
 dotnet restore
-```
-
-### 4. Build the Project
-
-```bash
 dotnet build
 ```
 
-### 5. Apply Database Migrations
+## 3. Apply the database migration
 
-After configuring the database connection, apply the EF Core migrations:
+This repository already includes the initial migration. After configuring the SQL Server connection, apply it:
 
-```bash
+```powershell
 dotnet ef database update
 ```
 
-Make sure the EF Core CLI is installed and compatible with the project's EF Core version.
+The migration creates the `TaskItems` table. When you make future model changes, create a new migration with a descriptive name before updating the database.
 
-### 6. Run the API
+To demonstrate migration creation from scratch while recording the tutorial, use a clean copy of the source without the `Migrations` folder and run:
 
-```bash
+```powershell
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+```
+
+## 4. Run the API
+
+```powershell
 dotnet run
 ```
 
-Use the application URL and endpoints displayed in the terminal to test the API.
+The included launch profile uses `http://localhost:5180`. Check the terminal output for the actual listening URL.
 
-## Testing with Postman
+In Development, the OpenAPI document is available at:
 
-Use Postman to test the CRUD endpoints available in the project:
+```text
+http://localhost:5180/openapi/v1.json
+```
 
-- **Create:** Create a new task.
-- **Read:** Retrieve tasks from the database.
-- **Update:** Update an existing task.
-- **Delete:** Delete a task.
+## API Endpoints
 
-### Verify Data Persistence
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/tasks` | Get all tasks |
+| GET | `/api/tasks/{id}` | Get a task by ID |
+| POST | `/api/tasks` | Create a task |
+| PUT | `/api/tasks/{id}` | Update a task |
+| DELETE | `/api/tasks/{id}` | Delete a task |
 
-To verify that data is stored persistently:
+### Example request body
 
-1. Create a task using Postman.
-2. Confirm that the task is stored in SQL Server.
-3. Stop and restart the API.
-4. Retrieve the task again using Postman.
-5. Verify that the task still exists.
+```json
+{
+  "title": "Learn Entity Framework Core",
+  "isCompleted": false
+}
+```
 
-Data should remain available after the API restarts, provided it has not been deleted from the database.
+`title` is required and has a maximum length of 200 characters.
 
-## What You'll Learn
+## Verify Persistence
 
-By following this project, you'll learn how to:
+1. Start the API.
+2. Send a `POST /api/tasks` request from Postman.
+3. Confirm the row exists in SQL Server's `TaskItems` table.
+4. Stop the API and start it again.
+5. Send `GET /api/tasks`.
+6. Confirm that the created task is still returned.
 
-- Connect an ASP.NET Core Web API to SQL Server.
-- Use Entity Framework Core for database operations.
-- Configure a `DbContext`.
-- Apply database migrations.
-- Implement CRUD operations using persistent storage.
-- Test API endpoints with Postman.
+The task should remain available because it is stored in SQL Server rather than an in-memory list.
 
 ## Related Repository
 
@@ -116,15 +138,13 @@ https://github.com/Agunahwan/TaskManagementApi
 
 ## Security Notes
 
-- Never commit database passwords or credentials.
-- Use local configuration or .NET User Secrets for development when appropriate.
-- Avoid exposing connection strings containing credentials in screenshots or recordings.
-- Review database migrations before applying them to important environments.
+- Never commit real database credentials or secrets.
+- Do not show passwords or sensitive connection details in screen recordings.
+- The sample enables `TrustServerCertificate=True` to simplify local development. Review TLS certificate validation settings for production.
+- Review migrations before applying schema changes to important databases.
 
 ## About AA Programming
 
-**AA Programming** shares practical programming tutorials covering application development, REST APIs, databases, and debugging.
+AA Programming shares practical programming tutorials covering APIs, databases, application development, and debugging.
 
-Follow the channel for more hands-on tutorials, including JWT Authentication in Video #05.
-
-If this repository helps you, feel free to give it a ⭐.
+Follow the channel for more tutorials, including JWT Authentication in Video #05.

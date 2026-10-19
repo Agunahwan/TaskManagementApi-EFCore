@@ -1,79 +1,80 @@
-﻿using TaskManagementApi.Models;
+using Microsoft.EntityFrameworkCore;
+using TaskManagementApi.Data;
+using TaskManagementApi.Models;
 
-namespace TaskManagementApi.Services
+namespace TaskManagementApi.Services;
+
+public class TaskService(AppDbContext dbContext) : ITaskService
 {
-    public class TaskService : ITaskService
+    public async Task<IReadOnlyList<TaskItem>> GetTasksAsync(
+        CancellationToken cancellationToken = default)
     {
-        private static readonly List<TaskItem> Tasks = new()
+        return await dbContext.TaskItems
+            .AsNoTracking()
+            .OrderBy(task => task.Id)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<TaskItem?> GetTaskAsync(
+        int id,
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext.TaskItems
+            .AsNoTracking()
+            .FirstOrDefaultAsync(task => task.Id == id, cancellationToken);
+    }
+
+    public async Task<TaskItem> CreateTaskAsync(
+        TaskItem task,
+        CancellationToken cancellationToken = default)
+    {
+        // SQL Server generates the Id because it is an identity column.
+        var newTask = new TaskItem
         {
-            new TaskItem
-            {
-                Id = 1,
-                Title = "Learn ASP.NET Core",
-                IsCompleted = false
-            },
-            new TaskItem
-            {
-                Id = 2,
-                Title = "Build REST API",
-                IsCompleted = false
-            },
-            new TaskItem
-            {
-                Id = 3,
-                Title = "Upload YouTube Video",
-                IsCompleted = true
-            }
+            Title = task.Title,
+            IsCompleted = task.IsCompleted
         };
 
-        public IEnumerable<TaskItem> GetTasks()
+        dbContext.TaskItems.Add(newTask);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return newTask;
+    }
+
+    public async Task<bool> UpdateTaskAsync(
+        int id,
+        TaskItem updatedTask,
+        CancellationToken cancellationToken = default)
+    {
+        var task = await dbContext.TaskItems
+            .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+        if (task is null)
         {
-            return Tasks;
+            return false;
         }
 
-        public TaskItem? GetTask(int id)
+        task.Title = updatedTask.Title;
+        task.IsCompleted = updatedTask.IsCompleted;
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> DeleteTaskAsync(
+        int id,
+        CancellationToken cancellationToken = default)
+    {
+        var task = await dbContext.TaskItems
+            .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+        if (task is null)
         {
-            return Tasks.FirstOrDefault(x => x.Id == id);
+            return false;
         }
 
-        public TaskItem CreateTask(TaskItem task)
-        {
-            task.Id = Tasks.Count > 0
-                ? Tasks.Max(x => x.Id) + 1
-                : 1;
-
-            Tasks.Add(task);
-
-            return task;
-        }
-
-        public bool UpdateTask(int id, TaskItem updatedTask)
-        {
-            var task = Tasks.FirstOrDefault(x => x.Id == id);
-
-            if (task == null)
-            {
-                return false;
-            }
-
-            task.Title = updatedTask.Title;
-            task.IsCompleted = updatedTask.IsCompleted;
-
-            return true;
-        }
-
-        public bool DeleteTask(int id)
-        {
-            var task = Tasks.FirstOrDefault(x => x.Id == id);
-
-            if (task == null)
-            {
-                return false;
-            }
-
-            Tasks.Remove(task);
-
-            return true;
-        }
+        dbContext.TaskItems.Remove(task);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return true;
     }
 }

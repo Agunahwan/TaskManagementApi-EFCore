@@ -1,18 +1,16 @@
-﻿using System.Collections.Generic;
 using TaskManagementApi.Models;
 
-namespace TaskManagementApi.Services
+namespace TaskManagementApi.Services;
+
+public interface ITaskService
 {
-    public interface ITaskService
-    {
-        IEnumerable<TaskItem> GetTasks();
+    Task<IReadOnlyList<TaskItem>> GetTasksAsync(CancellationToken cancellationToken = default);
 
-        TaskItem? GetTask(int id);
+    Task<TaskItem?> GetTaskAsync(int id, CancellationToken cancellationToken = default);
 
-        TaskItem CreateTask(TaskItem task);
+    Task<TaskItem> CreateTaskAsync(TaskItem task, CancellationToken cancellationToken = default);
 
-        bool UpdateTask(int id, TaskItem updatedTask);
+    Task<bool> UpdateTaskAsync(int id, TaskItem updatedTask, CancellationToken cancellationToken = default);
 
-        bool DeleteTask(int id);
-    }
+    Task<bool> DeleteTaskAsync(int id, CancellationToken cancellationToken = default);
 }

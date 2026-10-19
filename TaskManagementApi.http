@@ -1,6 +1,30 @@
-@TaskManagementApi_HostAddress = http://localhost:5158
+@TaskManagementApi_HostAddress = http://localhost:5180
 
-GET {{TaskManagementApi_HostAddress}}/weatherforecast/
+### Get all tasks
+GET {{TaskManagementApi_HostAddress}}/api/tasks
 Accept: application/json
 
-###
+### Get one task (replace 1 with an existing ID)
+GET {{TaskManagementApi_HostAddress}}/api/tasks/1
+Accept: application/json
+
+### Create a task
+POST {{TaskManagementApi_HostAddress}}/api/tasks
+Content-Type: application/json
+
+{
+  "title": "Learn Entity Framework Core",
+  "isCompleted": false
+}
+
+### Update a task (replace 1 with an existing ID)
+PUT {{TaskManagementApi_HostAddress}}/api/tasks/1
+Content-Type: application/json
+
+{
+  "title": "Learn EF Core and SQL Server",
+  "isCompleted": true
+}
+
+### Delete a task (replace 1 with an existing ID)
+DELETE {{TaskManagementApi_HostAddress}}/api/tasks/1
